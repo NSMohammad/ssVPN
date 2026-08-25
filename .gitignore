@@ -1,0 +1,13 @@
+# Local Environment & Secrets
+.env
+
+# User Data & SSH Keys (Persistent Storage)
+user_data/
+ssh_host_keys/
+
+# Compiled Binary
+web_panel
+
+# IDE / OS Files
+.DS_Store
+.idea/
