@@ -9,7 +9,7 @@ services:
       - NET_ADMIN
     ports:
       # پورت اتصال کاربران SSH
-      - "${INCOMMING_PORT:-2222}:22"
+      - "${INCOMMING_PORT:-2222}:${SERVER_SSH_PORT}"
       # پورت UDP Forwarding برای BadVPN
       - "7300:7300/udp"
     volumes:
