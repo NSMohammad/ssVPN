@@ -1,5 +1,5 @@
 services:
-  ssVPN:
+  ssvpn:
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,7 +14,7 @@ services:
       - "7300:7300/udp"
     volumes:
       # مسیر ذخیره همیشگی دیتای کاربران
-      - ssVPN_data:/etc/vpn_users
+      - ssvpn_data:/etc/vpn_users
     environment:
       - ADMIN_USER=${ADMIN_USER:-admin}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
@@ -29,4 +29,4 @@ services:
           memory: 512M
 
 volumes:
-  ssVPN_data:
+  ssvpn_data:
