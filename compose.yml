@@ -1,50 +1,32 @@
 services:
-  vpn:
-    build: .
-    container_name: sspanel
+  ssVPN:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ssVPN
     restart: always
-    env_file:
-      - .env
+    cap_add:
+      - NET_ADMIN
     ports:
-      - "${INCOMMING_PORT}:22"
+      # پورت اتصال کاربران SSH
+      - "${INCOMMING_PORT:-2222}:22"
+      # پورت UDP Forwarding برای BadVPN
+      - "7300:7300/udp"
+    volumes:
+      # مسیر ذخیره همیشگی دیتای کاربران
+      - ssVPN_data:/etc/vpn_users
+    environment:
+      - ADMIN_USER=${ADMIN_USER:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - DIRECT_HOST=${DIRECT_HOST}
+      - INCOMMING_PORT=${INCOMMING_PORT:-2222}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_ADMIN_ID=${TELEGRAM_ADMIN_ID}
     deploy:
       resources:
         limits:
-          cpus: '0.5'          # حداکثر استفاده معادل 1 هسته کامل پردازنده
-          memory: 256M         # حداکثر استفاده رم 512 مگابایت
-        reservations:
-          cpus: '0.1'
-          memory: 128M
-    cap_add:
-      - NET_ADMIN
-    volumes:
-      - ./user_data:/etc/vpn_users
-    networks:
-      - secure_vpn_net
-      - sspanel-web
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=${WEBPANEL_NET}"
+          cpus: '1.0'
+          memory: 512M
 
-      # ۱. سرویس و روت وب‌پنل (پورت 8090) - فعال روی هر دو دامنه
-      - "traefik.http.routers.sspanel.rule=Host(`${SSPANEL_DOMAIN}`)"
-      - "traefik.http.routers.sspanel.entrypoints=websecure"
-      - "traefik.http.routers.sspanel.tls=true"
-      - "traefik.http.routers.sspanel.service=sspanel-svc"
-      - "traefik.http.services.sspanel-svc.loadbalancer.server.port=${SSPANEL_PORT}"
-
-      # ۳. ریدایرکت خودکار HTTP به HTTPS
-      - "traefik.http.routers.sspanel-http.rule=Host(`${SSPANEL_DOMAIN}`)"
-      - "traefik.http.routers.sspanel-http.entrypoints=web"
-      - "traefik.http.routers.sspanel-http.middlewares=force-https@file"
-
-networks:
-  secure_vpn_net:
-    name: ${INTERNAL_NET}
-    external: true
-    ipam:
-      config:
-        - subnet: 172.25.0.0/16
-  sspanel-web:
-    name: ${WEBPANEL_NET}
-    external: true
+volumes:
+  ssVPN_data:
